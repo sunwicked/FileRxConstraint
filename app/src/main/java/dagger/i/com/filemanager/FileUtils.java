@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FileUtils {
 
@@ -55,14 +56,33 @@ public class FileUtils {
     public static List<FileModel> getFrequency(ArrayList<File> files) {
         List<FileModel> fileModelList = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
-            fileModelList.add(new FileModel("N/A","N/A"));
+            fileModelList.add(new FileModel("N/A", "N/A"));
         }
-        Map<String,Integer> freqMap = new HashMap<>();
+        Map<String, Integer> freqMap = new HashMap<>();
         for (File file : files) {
-
+            String mime = getMimeType(file);
+            if (freqMap.containsKey(mime)) {
+                freqMap.put(mime, freqMap.get(mime) + 1);
+            } else {
+                freqMap.put(mime, 1);
+            }
         }
 
+        Set<Map.Entry<String, Integer>> set = freqMap.entrySet();
+        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(set);
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return (o2.getValue()).compareTo(o1.getValue());
+            }
+        });
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : list) {
 
+            fileModelList.set(index++, new FileModel(entry.getKey(), entry.getValue() + ""));
+            if (index == 5) {
+                break;
+            }
+        }
         return fileModelList;
     }
 

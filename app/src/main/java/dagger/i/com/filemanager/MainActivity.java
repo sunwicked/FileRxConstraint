@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private File root;
-    private ArrayList<File> fileList = new ArrayList<File>();
 
     @OnClick(R.id.btn)
     public void Scan(View view) {
@@ -122,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
     public ArrayList<File> getFile(File root) {
         ContentResolver contentResolver = this.getContentResolver();
-
+         ArrayList<File> fileList = new ArrayList<>();
         uri = MediaStore.Files
                 .getContentUri("external");
         final String[] projection = {MediaStore.Files.FileColumns.DATA};

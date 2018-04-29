@@ -69,7 +69,7 @@ public class FileUtils {
         }
 
         Set<Map.Entry<String, Integer>> set = freqMap.entrySet();
-        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(set);
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(set);
         Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
                 return (o2.getValue()).compareTo(o1.getValue());

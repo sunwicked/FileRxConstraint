@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancel(DialogInterface dialog) {
                 initiateCancellation();
+                if(files.isEmpty())
                 tvHintText.setVisibility(View.VISIBLE);
             }
         });
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 initiateCancellation();
+                if(files.isEmpty())
                 tvHintText.setVisibility(View.VISIBLE);
             }
         });

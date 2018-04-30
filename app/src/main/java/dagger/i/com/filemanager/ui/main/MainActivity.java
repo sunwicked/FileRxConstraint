@@ -30,7 +30,6 @@ import dagger.i.com.filemanager.di.component.ActivityComponent;
 import dagger.i.com.filemanager.di.component.DaggerActivityComponent;
 import dagger.i.com.filemanager.di.module.ActivityModule;
 import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -43,6 +42,7 @@ import static dagger.i.com.filemanager.FileUtils.getFrequency;
 import static dagger.i.com.filemanager.FileUtils.walkDir;
 import static dagger.i.com.filemanager.Permissions.AndroidRuntimePermission;
 import static dagger.i.com.filemanager.Permissions.RUNTIME_PERMISSION_CODE;
+import static dagger.i.com.filemanager.ViewUtils.toggleVisibility;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,17 +76,44 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     @BindView(R.id.iv_share)
     ImageView ivShare;
+    @BindView(R.id.textView11)
+    TextView textView11;
+    @BindView(R.id.textView6)
+    TextView tvHintText;
     private ArrayList<File> files;
 
     private ActivityComponent activityComponent;
+    ArrayList<TextView> viewList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getActivityComponent().inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        getActivityComponent().inject(this);
+        buildViewList();
+        toggleVisibility(viewList, false);
         AndroidRuntimePermission(this);
+        initProgressDialog();
+    }
+
+
+    private void buildViewList() {
+        viewList.add(textView);
+        viewList.add(textView1Stats);
+        viewList.add(textView2);
+        viewList.add(textView2Stats);
+        viewList.add(textView3);
+        viewList.add(textView3Stats);
+        viewList.add(textView4);
+        viewList.add(textView4Stats);
+        viewList.add(textView5);
+        viewList.add(textView5Stats);
+        viewList.add(avgFileSize);
+        viewList.add(textView11);
+    }
+
+    void initProgressDialog() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
@@ -100,11 +127,15 @@ public class MainActivity extends AppCompatActivity {
         // scan start stop
         files = new ArrayList<>();
         progressDialog.show();
-
+        tvHintText.setVisibility(View.INVISIBLE);
         ivShare.setVisibility(View.INVISIBLE);
         NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
 
 
+        buildRxDisposable();
+    }
+
+    private void buildRxDisposable() {
         Disposable disposable = fileObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -143,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public ArrayList<File> call() throws Exception {
             try {
-                Thread.sleep(1500); // simulating delay to show progress loading
+                Thread.sleep(3000); // simulating delay to show progress loading
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -185,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         textView4Stats.setText(fileModels.get(3).getFreq());
         textView5.setText(fileModels.get(4).getName());
         textView5Stats.setText(fileModels.get(4).getFreq());
-
+        toggleVisibility(viewList, true);
 
     }
 

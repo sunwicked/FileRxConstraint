@@ -100,4 +100,20 @@ public class FileUtils {
         }
         return type;
     }
+
+    public static  ArrayList<File> walkDir(File dir, ArrayList<File> files) {
+        File[] listFile = dir.listFiles();
+
+        if (listFile != null) {
+            for (int i = 0; i < listFile.length; i++) {
+
+                if (listFile[i].isDirectory()) {
+                    walkDir(listFile[i], files);
+                } else {
+                    files.add(listFile[i]);
+                }
+            }
+        }
+        return files;
+    }
 }

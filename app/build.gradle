@@ -26,7 +26,6 @@ ext {
 
     rxjavaVersion = "2.1.3"
     rxandroidVersion = "2.0.1"
-    rxkotlinVersion = "2.1.0"
 }
 
 dependencies {

@@ -1,6 +1,5 @@
-package dagger.i.com;
+package dagger.i.com.filemanager.ui.main;
 
-import android.graphics.Movie;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;

@@ -1,8 +1,8 @@
-package dagger.i.com.filemanager;
+package dagger.i.com.filemanager.ui.main;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -11,18 +11,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import dagger.i.com.FileAdapter;
+import dagger.i.com.filemanager.FileModel;
+import dagger.i.com.filemanager.NotificationHandler;
+import dagger.i.com.filemanager.R;
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.textView5Stats)
     TextView textView5Stats;
     ProgressDialog progressDialog;
+    @BindView(R.id.iv_share)
+    ImageView ivShare;
     private ArrayList<File> files;
 
     @Override
@@ -81,18 +86,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     @OnClick(R.id.btn)
-    public void Scan(View view) {
+    public void scan(View view) {
         // scan start stop
         files = new ArrayList<>();
         progressDialog.show();
 
-        NotificationHandler.setNotification("Scanning", "File Scan is in progress", this);
+        ivShare.setVisibility(View.INVISIBLE);
+        NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
         try {
             Thread.sleep(1000); // simulating delay to show progress loading
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        io.reactivex.Observable.fromCallable(new Callable<ArrayList<File>>() {
+        Observable.fromCallable(new Callable<ArrayList<File>>() {
             @Override
             public ArrayList<File> call() throws Exception {
                 return walkDir(Environment.getExternalStorageDirectory(), files);
@@ -123,6 +129,16 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+
+    @OnClick(R.id.iv_share)
+    public void share(View view) {
+        Intent sendIntent = new Intent ();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.total_files_are) + files.size());
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
+    }
+
     private void setValues(ArrayList<File> files) {
         ArrayList<File> topFiles = generateFileAnalytics(files);
 
@@ -132,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         setFrequentFilesTypes(files);
         NotificationHandler.cancelNotification(this);
         progressDialog.cancel();
+        ivShare.setVisibility(View.VISIBLE);
     }
 
     private void setFrequentFilesTypes(ArrayList<File> files) {

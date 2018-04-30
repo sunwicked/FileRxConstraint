@@ -1,7 +1,6 @@
 package dagger.i.com.filemanager;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,7 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+
+import dagger.i.com.filemanager.ui.main.MainActivity;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 

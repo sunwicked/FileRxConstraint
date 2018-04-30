@@ -119,10 +119,18 @@ public class MainActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Loading");
+        progressDialog.setMessage("File scan is in Progress");
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
+                initiateCancellation();
+                tvHintText.setVisibility(View.VISIBLE);
+            }
+        });
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "STOP", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
                 initiateCancellation();
                 tvHintText.setVisibility(View.VISIBLE);
             }

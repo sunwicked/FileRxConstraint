@@ -1,6 +1,7 @@
 package dagger.i.com.filemanager.ui.main;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<File> files;
 
     private ActivityComponent activityComponent;
+    private boolean isCancelled = false;
     ArrayList<TextView> viewList = new ArrayList<>();
 
     @Override
@@ -118,6 +120,13 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Loading");
+        progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                initiateCancellation();
+                tvHintText.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -126,11 +135,10 @@ public class MainActivity extends AppCompatActivity {
     public void scan(View view) {
         // scan start stop
         files = new ArrayList<>();
-        progressDialog.show();
         tvHintText.setVisibility(View.INVISIBLE);
         ivShare.setVisibility(View.INVISIBLE);
         NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
-
+        progressDialog.show();
 
         buildRxDisposable();
     }
@@ -142,7 +150,8 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeWith(new DisposableObserver<ArrayList<File>>() {
                     @Override
                     public void onNext(ArrayList<File> files) {
-                        setValues(files);
+
+                            setValues(files);
                     }
 
                     @Override
@@ -178,7 +187,10 @@ public class MainActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return walkDir(Environment.getExternalStorageDirectory(), files);
+            if (!isCancelled)
+                return walkDir(Environment.getExternalStorageDirectory(), files);
+            else
+                return files;
         }
     });
 
@@ -194,10 +206,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setValues(ArrayList<File> files) {
         ArrayList<File> topFiles = generateFileAnalytics(files);
-
         setAdapter(topFiles);
         avgFileSize.setText(calculateAvgFileSize(files));
-
         setFrequentFilesTypes(files);
         NotificationHandler.cancelNotification(this);
         progressDialog.cancel();
@@ -234,29 +244,24 @@ public class MainActivity extends AppCompatActivity {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.cancel();
         }
+        initiateCancellation();
+    }
 
+    private void initiateCancellation() {
+        isCancelled = true;
+        NotificationHandler.cancelNotification(this);
         compositeDisposable.clear();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        initiateCancellation();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    private static boolean isExternalStorageReadOnly() {
-        String extStorageState = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState)) {
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean isExternalStorageAvailable() {
-        String extStorageState = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(extStorageState)) {
-            return true;
-        }
-        return false;
     }
 
 
@@ -276,5 +281,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }

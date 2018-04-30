@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView ivShare;
     private ArrayList<File> files;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,42 +95,49 @@ public class MainActivity extends AppCompatActivity {
         ivShare.setVisibility(View.INVISIBLE);
         NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
 
-        Observable.fromCallable(new Callable<ArrayList<File>>() {
-            @Override
-            public ArrayList<File> call() throws Exception {
-                try {
-                    Thread.sleep(1000); // simulating delay to show progress loading
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                return walkDir(Environment.getExternalStorageDirectory(), files);
-            }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ArrayList<File>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
 
-                    }
-
-                    @Override
-                    public void onNext(ArrayList<File> files) {
-                        setValues(files);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+        fileObservable
+                 .subscribeOn(Schedulers.io())
+                 .observeOn(AndroidSchedulers.mainThread())
+                 .subscribe(observer);
     }
 
+
+
+
+    Observable<ArrayList<File>> fileObservable = Observable.fromCallable(new Callable<ArrayList<File>>() {
+        @Override
+        public ArrayList<File> call() throws Exception {
+            try {
+                Thread.sleep(1000); // simulating delay to show progress loading
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return walkDir(Environment.getExternalStorageDirectory(), files);
+        }
+    });
+
+    Observer<ArrayList<File>> observer = new Observer<ArrayList<File>>() {
+        @Override
+        public void onSubscribe(Disposable d) {
+
+        }
+
+        @Override
+        public void onNext(ArrayList<File> files) {
+            setValues(files);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+
+        }
+
+        @Override
+        public void onComplete() {
+
+        }
+    };
 
     @OnClick(R.id.iv_share)
     public void share(View view) {
@@ -182,6 +190,10 @@ public class MainActivity extends AppCompatActivity {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.cancel();
         }
+
+//        if (sub != null && !sub.isUnsubscribed()) {
+//            sub.unsubscribe();
+//        }
     }
 
     @Override

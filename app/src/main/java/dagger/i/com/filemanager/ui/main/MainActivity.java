@@ -22,9 +22,13 @@ import java.util.concurrent.Callable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import dagger.i.com.filemanager.FileApplication;
 import dagger.i.com.filemanager.FileModel;
 import dagger.i.com.filemanager.NotificationHandler;
 import dagger.i.com.filemanager.R;
+import dagger.i.com.filemanager.di.component.ActivityComponent;
+import dagger.i.com.filemanager.di.component.DaggerActivityComponent;
+import dagger.i.com.filemanager.di.module.ActivityModule;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -74,12 +78,14 @@ public class MainActivity extends AppCompatActivity {
     ImageView ivShare;
     private ArrayList<File> files;
 
+    private ActivityComponent activityComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        getActivityComponent().inject(this);
         AndroidRuntimePermission(this);
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -122,11 +128,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public ActivityComponent getActivityComponent() {
+        if (activityComponent == null) {
+            activityComponent = DaggerActivityComponent.builder()
+                    .activityModule(new ActivityModule(this))
+                    .applicationComponent(FileApplication.get(this).getComponent())
+                    .build();
+        }
+        return activityComponent;
+    }
+
+
     Observable<ArrayList<File>> fileObservable = Observable.fromCallable(new Callable<ArrayList<File>>() {
         @Override
         public ArrayList<File> call() throws Exception {
             try {
-                Thread.sleep(1000); // simulating delay to show progress loading
+                Thread.sleep(1500); // simulating delay to show progress loading
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

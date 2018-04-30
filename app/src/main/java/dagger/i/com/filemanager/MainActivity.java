@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView4Stats;
     @BindView(R.id.textView5Stats)
     TextView textView5Stats;
+    private FileFinder finder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +80,16 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn)
     public void Scan(View view) {
         // scan start stop
-        ArrayList<File> files = null;
+        ArrayList<File> files = new ArrayList<>();
+        if (finder != null) {
+            finder.cancel(true);
+        }
+        finder = new FileFinder();
+
+        NotificationHandler.setNotification("Scanning", "File Scan is in progress", this);
         try {
-            files = getFile();
+            //simulating delay in some cases loading is very fast
+            files = finder.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, Environment.getExternalStorageDirectory()).get();
             ArrayList<File> topFiles = generateFileAnalytics(files);
             setAdapter(topFiles);
             avgFileSize.setText(calculateAvgFileSize(files));
@@ -87,8 +97,9 @@ public class MainActivity extends AppCompatActivity {
             NotificationHandler.cancelNotification(this);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
-
     }
 
     private void setFrequentFilesTypes(ArrayList<File> files) {
@@ -115,51 +126,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    Cursor cursor;
-
-    Uri uri;
-
-    public ArrayList<File> getFile() throws InterruptedException {
-        // Adding delay
-        NotificationHandler.setNotification("Scanning","File Scan is in progress",this);
-        Thread.sleep(3500);
-        ContentResolver contentResolver = this.getContentResolver();
-        ArrayList<File> fileList = new ArrayList<>();
-        uri = MediaStore.Files
-                .getContentUri("external");
-        final String[] projection = {MediaStore.Files.FileColumns.DATA};
-        cursor = contentResolver.query(
-                uri, // Uri
-                projection,
-                null,
-                null,
-                null
-        );
-
-        if (cursor == null) {
-
-            Toast.makeText(MainActivity.this, "Something Went Wrong.", Toast.LENGTH_LONG);
-
-        } else if (!cursor.moveToFirst()) {
-
-            Toast.makeText(MainActivity.this, "No Files Found on SD Card.", Toast.LENGTH_LONG);
-
-        } else {
-
-
-            do {
-
-                String path = cursor.getString(cursor.getColumnIndex
-                        (MediaStore.Files.FileColumns.DATA));
-                File f = new File(path);
-                fileList.add(f);
-
-            } while (cursor.moveToNext());
-        }
-
-        return fileList;
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finder.cancel(true);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
     private static boolean isExternalStorageReadOnly() {
         String extStorageState = Environment.getExternalStorageState();

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityComponent activityComponent;
     private boolean isCancelled = false;
     ArrayList<TextView> viewList = new ArrayList<>();
+    private boolean setOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,24 +121,27 @@ public class MainActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("File scan is in Progress");
+        progressDialog.setMessage(getString(R.string.loading_msg));
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                initiateCancellation();
-                if(files.isEmpty())
-                tvHintText.setVisibility(View.VISIBLE);
+             cancelScanProcess();
             }
         });
         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "STOP", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                initiateCancellation();
-                if(files.isEmpty())
-                tvHintText.setVisibility(View.VISIBLE);
+                cancelScanProcess();
             }
         });
+    }
+
+    private void cancelScanProcess() {
+        progressDialog.dismiss();
+        initiateCancellation();
+        if (files.isEmpty() && !setOnce)
+            tvHintText.setVisibility(View.VISIBLE);
+        isCancelled = false;
     }
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -161,7 +166,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onNext(ArrayList<File> files) {
 
+                        if (!files.isEmpty()) {
                             setValues(files);
+                        } else {
+                            cancelScanProcess();
+                            Snackbar.make(tvHintText, "Retry Scanning", Snackbar.LENGTH_LONG).show();
+                        }
                     }
 
                     @Override
@@ -193,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public ArrayList<File> call() throws Exception {
             try {
-                Thread.sleep(3000); // simulating delay to show progress loading
+                Thread.sleep(2000); // simulating delay to show progress loading
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -222,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
         NotificationHandler.cancelNotification(this);
         progressDialog.cancel();
         ivShare.setVisibility(View.VISIBLE);
+        setOnce = true;
     }
 
     private void setFrequentFilesTypes(ArrayList<File> files) {
@@ -286,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-finish();
+                    finish();
                 }
             }
         }

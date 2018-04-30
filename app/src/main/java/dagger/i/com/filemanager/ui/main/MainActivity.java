@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
         ivShare.setVisibility(View.INVISIBLE);
         NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
         progressDialog.show();
-
         buildRxDisposable();
     }
 

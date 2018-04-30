@@ -28,7 +28,9 @@ import dagger.i.com.filemanager.R;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static dagger.i.com.filemanager.FileUtils.calculateAvgFileSize;
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Loading");
     }
 
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @OnClick(R.id.btn)
     public void scan(View view) {
@@ -96,13 +99,27 @@ public class MainActivity extends AppCompatActivity {
         NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
 
 
-        fileObservable
-                 .subscribeOn(Schedulers.io())
-                 .observeOn(AndroidSchedulers.mainThread())
-                 .subscribe(observer);
+        Disposable disposable = fileObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<ArrayList<File>>() {
+                    @Override
+                    public void onNext(ArrayList<File> files) {
+                        setValues(files);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+        compositeDisposable.add(disposable);
     }
-
-
 
 
     Observable<ArrayList<File>> fileObservable = Observable.fromCallable(new Callable<ArrayList<File>>() {
@@ -117,31 +134,10 @@ public class MainActivity extends AppCompatActivity {
         }
     });
 
-    Observer<ArrayList<File>> observer = new Observer<ArrayList<File>>() {
-        @Override
-        public void onSubscribe(Disposable d) {
-
-        }
-
-        @Override
-        public void onNext(ArrayList<File> files) {
-            setValues(files);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-
-        }
-
-        @Override
-        public void onComplete() {
-
-        }
-    };
 
     @OnClick(R.id.iv_share)
     public void share(View view) {
-        Intent sendIntent = new Intent ();
+        Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.total_files_are) + files.size());
         sendIntent.setType("text/plain");
@@ -191,9 +187,7 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.cancel();
         }
 
-//        if (sub != null && !sub.isUnsubscribed()) {
-//            sub.unsubscribe();
-//        }
+        compositeDisposable.clear();
     }
 
     @Override

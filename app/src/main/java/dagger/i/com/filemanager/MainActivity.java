@@ -1,17 +1,12 @@
 package dagger.i.com.filemanager;
 
-import android.Manifest;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,13 +28,14 @@ import dagger.i.com.FileAdapter;
 import static dagger.i.com.filemanager.FileUtils.calculateAvgFileSize;
 import static dagger.i.com.filemanager.FileUtils.generateFileAnalytics;
 import static dagger.i.com.filemanager.FileUtils.getFrequency;
+import static dagger.i.com.filemanager.Permissions.AndroidRuntimePermission;
+import static dagger.i.com.filemanager.Permissions.RUNTIME_PERMISSION_CODE;
 
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.btn)
     Button btnScan;
 
-    public static final int RUNTIME_PERMISSION_CODE = 7;
     @BindView(R.id.rv_files)
     RecyclerView rvFiles;
     @BindView(R.id.avgFileSize)
@@ -70,10 +66,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        AndroidRuntimePermission(this);
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
             btnScan.setEnabled(false);
         }
-        AndroidRuntimePermission();
 
     }
 
@@ -81,16 +77,22 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn)
     public void Scan(View view) {
         // scan start stop
-        ArrayList<File> files = getFile(Environment.getExternalStorageDirectory());
-        ArrayList<File> topFiles = generateFileAnalytics(files);
-        setAdapter(topFiles);
-        avgFileSize.setText(calculateAvgFileSize(files));
-        setFrequentFilesTypes(files);
+        ArrayList<File> files = null;
+        try {
+            files = getFile();
+            ArrayList<File> topFiles = generateFileAnalytics(files);
+            setAdapter(topFiles);
+            avgFileSize.setText(calculateAvgFileSize(files));
+            setFrequentFilesTypes(files);
+            NotificationHandler.cancelNotification(this);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
     private void setFrequentFilesTypes(ArrayList<File> files) {
-        List<FileModel> fileModels= getFrequency(files);
+        List<FileModel> fileModels = getFrequency(files);
         textView.setText(fileModels.get(0).getName());
         textView1Stats.setText(fileModels.get(0).getFreq());
         textView2.setText(fileModels.get(1).getName());
@@ -106,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void setAdapter(ArrayList<File> files) {
         rvFiles.setAdapter(new FileAdapter(files));
         rvFiles.setLayoutManager(new LinearLayoutManager(this));
@@ -118,9 +119,12 @@ public class MainActivity extends AppCompatActivity {
 
     Uri uri;
 
-    public ArrayList<File> getFile(File root) {
+    public ArrayList<File> getFile() throws InterruptedException {
+        // Adding delay
+        NotificationHandler.setNotification("Scanning","File Scan is in progress",this);
+        Thread.sleep(3500);
         ContentResolver contentResolver = this.getContentResolver();
-         ArrayList<File> fileList = new ArrayList<>();
+        ArrayList<File> fileList = new ArrayList<>();
         uri = MediaStore.Files
                 .getContentUri("external");
         final String[] projection = {MediaStore.Files.FileColumns.DATA};
@@ -173,51 +177,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    // Creating Runtime permission function.
-    public void AndroidRuntimePermission() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-                    AlertDialog.Builder alert_builder = new AlertDialog.Builder(MainActivity.this);
-                    alert_builder.setMessage("External Storage Permission is Required.");
-                    alert_builder.setTitle("Please Grant Permission.");
-                    alert_builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                            ActivityCompat.requestPermissions(
-                                    MainActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    RUNTIME_PERMISSION_CODE
-
-                            );
-                        }
-                    });
-
-                    alert_builder.setNeutralButton("Cancel", null);
-
-                    AlertDialog dialog = alert_builder.create();
-
-                    dialog.show();
-
-                } else {
-
-                    ActivityCompat.requestPermissions(
-                            MainActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            RUNTIME_PERMISSION_CODE
-                    );
-                }
-            } else {
-
-            }
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

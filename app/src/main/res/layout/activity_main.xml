@@ -152,7 +152,7 @@
         app:layout_constraintEnd_toStartOf="@+id/avgFileSize"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView1Stats" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3Stats" />
 
     <TextView
         android:id="@+id/avgFileSize"

@@ -39,7 +39,12 @@ public class Permissions {
                         }
                     });
 
-                    alert_builder.setNeutralButton("Cancel", null);
+                    alert_builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            activity.finish();
+                        }
+                    });
 
                     AlertDialog dialog = alert_builder.create();
 

@@ -93,14 +93,15 @@ public class MainActivity extends AppCompatActivity {
 
         ivShare.setVisibility(View.INVISIBLE);
         NotificationHandler.setNotification("Scanning", "File scan is in progress", this);
-        try {
-            Thread.sleep(1000); // simulating delay to show progress loading
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         Observable.fromCallable(new Callable<ArrayList<File>>() {
             @Override
             public ArrayList<File> call() throws Exception {
+                try {
+                    Thread.sleep(1000); // simulating delay to show progress loading
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 return walkDir(Environment.getExternalStorageDirectory(), files);
             }
         })

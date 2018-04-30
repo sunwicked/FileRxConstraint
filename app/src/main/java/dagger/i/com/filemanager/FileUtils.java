@@ -16,8 +16,7 @@ import java.util.Set;
 public class FileUtils {
 
     public static String getStringSizeLengthFile(long size) {
-
-        long sizeInMb = size / (1024 * 1024);
+        float sizeInMb = Math.round((float) size / (1024 * 1024));
 
         return sizeInMb + "Mb";
     }
@@ -101,7 +100,7 @@ public class FileUtils {
         return type;
     }
 
-    public static  ArrayList<File> walkDir(File dir, ArrayList<File> files) {
+    public static ArrayList<File> walkDir(File dir, ArrayList<File> files) {
         File[] listFile = dir.listFiles();
 
         if (listFile != null) {

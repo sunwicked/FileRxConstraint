@@ -160,7 +160,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="0 bytes"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
         android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="@+id/textView11"

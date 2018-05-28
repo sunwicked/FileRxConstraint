@@ -200,11 +200,16 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="No Scans Performed Yet"
-        android:textSize="@dimen/twenty_sp"
         android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/twenty_sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/rv_files"
         app:layout_constraintEnd_toEndOf="@+id/rv_files"
         app:layout_constraintStart_toStartOf="@+id/rv_files"
         app:layout_constraintTop_toTopOf="@+id/textView3" />
+
+    <android.support.constraint.Group
+        android:id="@+id/group3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </android.support.constraint.ConstraintLayout>

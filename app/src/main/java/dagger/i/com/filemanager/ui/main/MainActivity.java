@@ -103,18 +103,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void buildViewList() {
-        viewList.add(textView);
-        viewList.add(textView1Stats);
-        viewList.add(textView2);
-        viewList.add(textView2Stats);
-        viewList.add(textView3);
-        viewList.add(textView3Stats);
-        viewList.add(textView4);
-        viewList.add(textView4Stats);
-        viewList.add(textView5);
-        viewList.add(textView5Stats);
-        viewList.add(avgFileSize);
-        viewList.add(textView11);
+//        viewList.add(textView);
+//        viewList.add(textView1Stats);
+//        viewList.add(textView2);
+//        viewList.add(textView2Stats);
+//        viewList.add(textView3);
+//        viewList.add(textView3Stats);
+//        viewList.add(textView4);
+//        viewList.add(textView4Stats);
+//        viewList.add(textView5);
+//        viewList.add(textView5Stats);
+//        viewList.add(avgFileSize);
+//        viewList.add(textView11);
+
     }
 
     void initProgressDialog() {

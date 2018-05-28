@@ -16,10 +16,10 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
+        android:minHeight="70dp"
         android:text="@string/scan"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:minHeight="70dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,8 +32,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:textStyle="bold"
         android:text="TextView"
+        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/textView2"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -155,13 +155,14 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="No Scans Performed Yet"
-        android:textSize="@dimen/twenty_sp"
         android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/twenty_sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/rv_files"
         app:layout_constraintEnd_toEndOf="@+id/rv_files"
         app:layout_constraintStart_toStartOf="@+id/rv_files"
         app:layout_constraintTop_toTopOf="@+id/textView3" />
+
     <TextView
         android:id="@+id/textView11"
         android:layout_width="wrap_content"
@@ -214,14 +215,18 @@
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:visibility="invisible"
-        android:baselineAlignBottom="true"
         android:background="@android:drawable/ic_menu_share"
+        android:baselineAlignBottom="true"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/rv_files"
         app:layout_constraintStart_toEndOf="@+id/avgFileSize"
         app:layout_constraintTop_toBottomOf="@+id/textView5Stats" />
 
-
+    <android.support.constraint.Group
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="textView1Stats,textView4,textView5,avgFileSize,textView2,textView4Stats,textView11,textView,iv_share,textView2Stats,textView3Stats,textView5Stats,textView3" />
 
 
 </android.support.constraint.ConstraintLayout>
